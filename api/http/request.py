@@ -13,12 +13,13 @@ import api.components as components
 
 class Request:
 
-    def __init__(self, env):
+    def __init__(self, env, ddbb):
         self.path = env['PATH_INFO']
         self.query_string = env['QUERY_STRING']
         self.request_method = env['REQUEST_METHOD']
         self.url_params = {}
         self.router = Router()
+        self.ddbb = ddbb
 
         self.input_params = self.inputParams(env)
 
@@ -62,13 +63,3 @@ class Request:
                 'code': res.HTTP_BAD_REQUEST
             },)
             raise
-
-    def add_routers(self, component_router):
-
-        method_list = ['get', 'post', 'put', 'patch', 'delete']
-
-        # for method in method_list:
-        #     value_attr_list_routes = getattr(component_router, f'{method}_routes')
-        #     value_attr_valid_methods = getattr(component_router, f'METHOD_{method.upper()}')
-        #     if len(value_attr_list_routes) > 1:
-        #         self.router.combine_routes(value_attr_list_routes, value_attr_valid_methods)

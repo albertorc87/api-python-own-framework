@@ -10,12 +10,12 @@ class Router:
     METHOD_PATCH = 'PATCH'
     METHOD_DELETE = 'DELETE'
 
-    # Route list
     get_routes = {}
     post_routes = {}
     put_routes = {}
     patch_routes = {}
     delete_routes = {}
+
 
     def __init__(self):
         pass
@@ -58,25 +58,28 @@ class Router:
 
     def send(self, req, start_response):
 
-        if req.request_method == self.METHOD_GET and len(self.get_routes) > 0:
-            for route, callback in self.get_routes.items():
+        valid_methods = [self.METHOD_GET, self.METHOD_POST, self.METHOD_PUT, self.METHOD_PATCH, self.METHOD_DELETE]
+        for valid_method in valid_methods:
+            value_attr_list_routes = getattr(self, f'{valid_method.lower()}_routes')
+            if req.request_method == valid_method and len(value_attr_list_routes) > 0:
+                for route, callback in value_attr_list_routes.items():
 
-                route_regex, valid_keys = self.format_route(route)
-                matches = re.finditer(route_regex, req.path)
+                    route_regex, valid_keys = self.format_route(route)
+                    matches = re.finditer(route_regex, req.path)
 
-                has_match = False
-                for matchNum, match in enumerate(matches, start=1):
-                    if len(valid_keys) > 0:
-                        for param_key in valid_keys:
-                            try:
-                                req.url_params[param_key] = match[param_key]
-                            except:
-                                continue
+                    has_match = False
+                    for matchNum, match in enumerate(matches, start=1):
+                        if len(valid_keys) > 0:
+                            for param_key in valid_keys:
+                                try:
+                                    req.url_params[param_key] = match[param_key]
+                                except:
+                                    continue
 
-                    has_match = True
+                        has_match = True
 
-                if has_match:
-                    return callback(req, start_response)
+                    if has_match:
+                        return callback(req, start_response)
 
         raise UrlException
 

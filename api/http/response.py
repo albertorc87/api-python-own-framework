@@ -5,6 +5,7 @@ import json
 class Response:
     # Success code
     HTTP_STATUS_OK = '200 OK'
+    HTTP_CREATED = '201 Created'
 
     # Client errors
     HTTP_BAD_REQUEST = '400 Bad Request'

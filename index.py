@@ -1,6 +1,5 @@
 # Crear un servidor sencillo
 from wsgiref.simple_server import make_server
-from wsgiref.util import setup_testing_defaults
 from dotenv import load_dotenv
 import os
 
@@ -13,10 +12,13 @@ HOST = os.environ.get('HOST')
 # Our libraries
 from api.http.response import Response as res
 from api.http.request import Request
+from classes.mysql import Mysql
 
 # Urls
 from api.components.user.urls import Urls as user_urls
 from api.components.todo.urls import Urls as todo_urls
+
+ddbb = Mysql()
 
 # Dentro de env están los headers, protocolos, queryset y params
 # start_response es un callback, el primer argumento es el status y el segundo las cabeceras
@@ -25,12 +27,11 @@ def api(env, start_response):
 
 
     try:
-        req = Request(env)
+        req = Request(env, ddbb)
 
         # Add routers
-        req.add_routers(user_urls.load_routes(req, start_response))
-        req.add_routers(todo_urls.load_routes(req, start_response))
-
+        user_urls.load_routes(req, start_response)
+        todo_urls.load_routes(req, start_response)
         return req.send(start_response)
     except Exception as e:
         print(e)
@@ -44,8 +45,6 @@ def api(env, start_response):
                 code = e.args[0]['code']
 
         return res.error(start_response, message, code=code)
-
-    # return res.success(start_response, req.input_params, code=res.HTTP_STATUS_OK)
 
     # status = '200 OK'
     # headers = [('Content-type', 'text/plain; charset=utf-8')]

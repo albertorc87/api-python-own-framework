@@ -1,1 +1,1 @@
-from api.components.user.urls import Urls
+from api.components.todo.urls import Urls
